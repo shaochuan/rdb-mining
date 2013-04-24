@@ -22,10 +22,12 @@ class Position(object):
             self.period = map(lambda p:Period(*(p.split('-')[:3])).__dict__, period)
             end = self.period[1]
             start = self.period[0]
-            d_year = (end['y'] - start['y']) * 365
-            d_month = max(end.get('m',1) - start.get('m',1), 0) * 30
-            d_day = max(end.get('d',1) - start.get('d',1), 0)
-            self.duration = d_year+d_month+d_day
+            print start, end
+            if end.has_key('y'):
+		d_year = (end['y'] - start['y']) * 365
+		d_month = max(end.get('m',1) - start.get('m',1), 0) * 30
+		d_day = max(end.get('d',1) - start.get('d',1), 0)
+		self.duration = d_year+d_month+d_day
     def __repr__(self):
         if hasattr('org'):
             return (u'%s @ %s' % (self.title, self.org)).encode('utf-8')
