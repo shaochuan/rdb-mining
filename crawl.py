@@ -18,7 +18,7 @@ def crawl(website, shard, conn):
 
     for loop_count, pid in enumerate(enum(conn, task, shard)):
         # remember where we are, so we can resume
-        # this pid will be retry when resume
+        # this pid will be retried when resume
         if (loop_count+1) % count_for_checkpoint_pid == 0:
             set_last_pid(conn, task, shard, pid)
 
