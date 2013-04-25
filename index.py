@@ -36,13 +36,13 @@ def make_index(conn, shard, idx='company'):
         if not profile:
             print '%s not existed.' % (pid,)
             continue
-        #print profile
+        print profile
 
         positions = profile.get('positions')
         if not positions:
             continue
         entry_or_list = map(lambda x:x.get('org'), positions)
-        if not entry_or_list:
+        if not any(entry_or_list):
             continue
         if not isinstance(entry_or_list, list):
             entry_or_list = [entry_or_list]
