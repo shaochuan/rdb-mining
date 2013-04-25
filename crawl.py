@@ -41,7 +41,7 @@ def crawl(website, shard, conn):
             r.table('profile').insert( cp.to_dict() ).run(conn)
         except RqlRuntimeError, e:
             print e
-        newname = cp.first_nm + '-' + cp.last_nm
+        newname = cp.first_nm.replace('/','-') + '-' + cp.last_nm.replace('/','-')
         newname = newname.replace(' ', '-').encode('utf-8')
         newname = urllib.pathname2url(newname)
         if len(newname) < 15:
