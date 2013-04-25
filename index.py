@@ -52,11 +52,13 @@ def make_index(conn, shard, idx='company'):
             if not entry:
                 continue
             pids = r.table(idx).get(entry).run(conn)
-            print pids
             if not pids:
                 pids = []
                 r.table(idx).insert({primary_key: entry, 'pids':pids}).run(conn)
-            if pid in pids['pids']:
+            else:
+                pids = pids.get('pids', [])
+            print pids
+            if pid in pids:
                 # this means this pid's index has been processed before
                 continue
             print (entry, pid)
