@@ -6,7 +6,7 @@ from rethinkdb.errors import RqlRuntimeError
 from profile import CandidatePage
 from enum import enum, set_last_pid, get_finished, set_finished
 
-def make_index(conn, shard, idx='skills'):
+def make_index(conn, shard, idx='company'):
     task = 'index'
     count_for_checkpoint_pid = 20
 
@@ -17,38 +17,52 @@ def make_index(conn, shard, idx='skills'):
     for loop_count, pid in enumerate(enum(conn, task, shard)):
         # remember where we are, so we can resume
         # this pid will be retried when resume
+        print 'indexing %s...' % (pid,)
         if (loop_count+1) % count_for_checkpoint_pid == 0:
             set_last_pid(conn, task, shard, pid)
 
-        profile = r.table('profile_index').get(pid).run(conn)
-        if not profile:
+        profile_idx = r.table('profile_index').get(pid).run(conn)
+        if not profile_idx:
             r.table('profile_index').insert({'pid':pid, 'indices':[]}).run(conn)
-            profile = r.table('profile_index').get(pid).run(conn)
-        indices = profile['indices']
+            profile_idx = r.table('profile_index').get(pid).run(conn)
+
+        indices = profile_idx['indices']
         if idx in indices:
+            print '%s indexed.' % (pid,)
             # this means this pid has been indexed before
             continue
 
-        indices.append(idx)
-
-	try:
-            entry_or_list = r.table('profile').get(pid)[idx].run(conn)
-        except RqlRuntimeError, e:
+        profile = r.table('profile').get(pid).run(conn)
+        if not profile:
+            print '%s not existed.' % (pid,)
             continue
+        #print profile
+
+        positions = profile.get('positions')
+        if not positions:
+            continue
+        entry_or_list = map(lambda x:x.get('org'), positions)
         if not entry_or_list:
             continue
         if not isinstance(entry_or_list, list):
             entry_or_list = [entry_or_list]
         primary_key = idx[0]+'id'
+        print entry_or_list
         for entry in entry_or_list:
-            r.table(idx).insert({primary_key: entry, 'pids':[]}).run(conn)
-            pids = r.table(idx).get(entry)['pids'].run(conn)
-            if pid in pids:
+            if not entry:
+                continue
+            pids = r.table(idx).get(entry).run(conn)
+            print pids
+            if not pids:
+                pids = []
+                r.table(idx).insert({primary_key: entry, 'pids':pids}).run(conn)
+            if pid in pids['pids']:
                 # this means this pid's index has been processed before
                 continue
+            print (entry, pid)
             r.table(idx).get(entry).update({'pids': r.row['pids'].append(pid)}).run(conn)
         # tell indexer that we're done
-        r.table('profile_index').update(profile).run(conn)
+        r.table('profile_index').update({'indices': r.row['indices'].append(idx)}).run(conn)
 
     set_finished(conn, task, shard)
     print 'Task %s at Shard %d finished.' % (task, shard)
