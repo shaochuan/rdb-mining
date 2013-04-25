@@ -64,7 +64,7 @@ def make_index(conn, shard, idx='company'):
             print (entry, pid)
             r.table(idx).get(entry).update({'pids': r.row['pids'].append(pid)}).run(conn)
         # tell indexer that we're done
-        r.table('profile_index').update({'indices': r.row['indices'].append(idx)}).run(conn)
+        r.table('profile_index').get(pid).update({'indices': r.row['indices'].append(idx)}).run(conn)
 
     set_finished(conn, task, shard)
     print 'Task %s at Shard %d finished.' % (task, shard)
