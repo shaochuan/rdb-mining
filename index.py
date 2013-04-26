@@ -3,7 +3,6 @@ import sys
 import urllib
 import rethinkdb as r
 from rethinkdb.errors import RqlRuntimeError
-from profile import CandidatePage
 from enum import enum, set_last_pid, get_finished, set_finished
 
 def make_index(conn, shard, idx='company'):
