@@ -22,7 +22,7 @@ def duration(conn, shard):
             continue
 
         for days in durations:
-            if days is not None and days >= 10000:
+            if days is None ort days >= 10000:
                 continue
             print 'days %d incremented.' % (int(days),)
             r.table('duration').get(days).update({'n': r.row['n'] + 1}).run(conn)
