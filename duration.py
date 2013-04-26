@@ -22,10 +22,11 @@ def duration(conn, shard):
             continue
 
         for days in durations:
-            if days is None or days >= 10000:
+            if days is None:
                 continue
-            print 'days %d incremented.' % (int(days),)
-            r.table('duration').get(days).update({'n': r.row['n'] + 1}).run(conn)
+            months = int(days)/30
+            print 'month %d incremented.' % (months,)
+            r.table('duration').get(months).update({'n': r.row['n'] + 1}).run(conn)
 
 if __name__ == '__main__':
     server_ip_dns = sys.argv[1]
