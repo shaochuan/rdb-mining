@@ -12,18 +12,19 @@ def duration(conn, shard):
         if not profile:
             print '%s not existed.' % (pid,)
             continue
-        print profile
+        #print profile
 
         positions = profile.get('positions')
         if not positions:
             continue
         durations = map(lambda x:x.get('duration'), positions)
-        if not any(entry_or_list):
+        if not any(durations):
             continue
 
         for days in durations:
             if days >= 10000:
                 continue
+            print 'days %d incremented.' % (int(days),)
             r.table('duration').get(days).update({'n': r.row['n'] + 1}).run(conn)
 
 if __name__ == '__main__':

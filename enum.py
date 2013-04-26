@@ -50,7 +50,8 @@ def set_last_pid(conn, task, shard, last_pid):
     return r.table('shards').get(shard).update({task+'_last_pid': last_pid}).run(conn)
 
 def get_last_pid(conn, task, shard):
-    return r.table('shards').get(shard)[task+'_last_pid'].run(conn)
+    s = r.db('people').table('shards').get(shard).run(conn)
+    return s.get(task+'_last_pid')
 
 def set_finished(conn, task, shard):
     return r.table('shards').get(shard).update({task+'_finished': True}).run(conn)
