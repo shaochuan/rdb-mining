@@ -31,4 +31,4 @@ if __name__ == '__main__':
     conn = r.connect(server_ip_dns, port=28015, db='people')
     conn.repl()
     shard = int(sys.argv[2])
-    make_index(conn, shard)
+    duration(conn, shard)
